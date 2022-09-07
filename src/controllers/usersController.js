@@ -3,9 +3,23 @@ import users from "../models/User.js";
 class userController {
 
     static getUsers = (req, res) => {
-        users.find((err, users) => {
-            res.status(200).json(users)
-        })
+
+        const pageOptions = {
+            page : parseInt(req.query.page),
+            limit : parseInt(req.query.limit)
+        }
+
+        users.find()
+            .skip(pageOptions.page * pageOptions.limit)
+            .limit(pageOptions.limit)
+            .exec(function (err, users) {
+                if(err){
+                    res.status(500).json(err);
+                    return;
+                }else{
+                    res.status(200).json(users);
+                }
+            });
     }
 
     static getUserById = (req, res) => {
@@ -15,6 +29,18 @@ class userController {
             if(err) {
                 res.status(404).send({message: `${err.message} Usuário não encontrado, verifique`})
             }else {
+                res.status(200).send(users);
+            }
+        })
+    }
+
+    static getUserByName = (req, res) => {
+        let name = req.query.name;
+
+        users.find({'name': {$regex: name, $options: 'i'}}, {}, (err, users) =>{
+            if(users.length === 0 || err) {
+                res.status(500).send({message: `Nenhum usuário com o nome ${name} encontrado`})
+            } else {
                 res.status(200).send(users);
             }
         })
@@ -50,24 +76,13 @@ class userController {
 
         users.findByIdAndDelete(id, (err) => {
             if(!err) {
-                res.status(204).send({message: 'Livro removido com sucesso'})
+                res.status(204).send({message: 'Usuário removido com sucesso'})
             } else {
                 res.status(500).send({message: err.message})
             }
         })
     }
 
-    static getUserByName = (req, res) => {
-        let name = req.query.name;
-
-        users.find({'name': {$regex: name, $options: 'i'}}, {}, (err, users) =>{
-            if(users.length === 0 || err) {
-                res.status(500).send({message: `Nenhum usuário com o nome ${name} encontrado`})
-            } else {
-                res.status(200).send(users);
-            }
-        })
-    }
 }
 
 export default userController;
