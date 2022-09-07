@@ -17,9 +17,4 @@ app.use(express.json())
 
 routes(app);
 
-app.get('/', (req, res) => {
-    res.status(200).send('Welcome');
-})
-
-
 export default app
