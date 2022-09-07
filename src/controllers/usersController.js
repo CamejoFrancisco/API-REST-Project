@@ -56,6 +56,18 @@ class userController {
             }
         })
     }
+
+    static getUserByName = (req, res) => {
+        let name = req.query.name;
+
+        users.find({'name': {$regex: name, $options: 'i'}}, {}, (err, users) =>{
+            if(users.length === 0 || err) {
+                res.status(500).send({message: `Nenhum usuário com o nome ${name} encontrado`})
+            } else {
+                res.status(200).send(users);
+            }
+        })
+    }
 }
 
 export default userController;
